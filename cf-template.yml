@@ -315,8 +315,10 @@ Mappings:
     cc2.8xlarge:
       Arch: NATHVM64
   AWSRegionArch2AMI:
-    HVM64: ami-02fd0b06f06d93dfc
-    HVMG2: ami-0c0ab057a101d8ff2
+    HVM64: 
+      id: ami-02fd0b06f06d93dfc
+    HVMG2: 
+      id: ami-0c0ab057a101d8ff2
 Resources:
   NotificationTopic:
     Type: 'AWS::SNS::Topic'
@@ -426,8 +428,11 @@ Resources:
       KeyName: !Ref KeyName
       ImageId: !FindInMap 
         - AWSRegionArch2AMI
-        - !Ref InstanceType
-        - Arch
+        - !FindInMap 
+          - AWSInstanceType2Arch
+          - !Ref InstanceType
+          - Arch
+        - id
       SecurityGroups:
         - !Ref InstanceSecurityGroup
       InstanceType: !Ref InstanceType
