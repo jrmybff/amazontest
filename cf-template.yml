@@ -1,14 +1,14 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >-
-  AWS CloudFormation Sample Template AutoScalingMultiAZWithNotifications: Create
-  a multi-az, load balanced and Auto Scaled sample web site running on an Apache
-  Web Serever. The application is configured to span all Availability Zones in
+  AWS CloudFormation Sample Template AutoScalingMultiAZWithNotifications was used
+  as a base. This template creates a multi-az, load balanced and Auto Scaled 
+  web page running on an Apache Web Server. The application is configured to span all Availability Zones in
   the region and is Auto-Scaled based on the CPU utilization of the web servers.
+
   Notifications will be sent to the operator email address on scaling events.
   The instances are load balanced with a simple health check against the default
-  web page. **WARNING** This template creates one or more Amazon EC2 instances
-  and an Application Load Balancer. You will be billed for the AWS resources
-  used if you create a stack from this template.
+  web page.
+
 Parameters:
   VpcId:
     Type: 'AWS::EC2::VPC::Id'
@@ -22,7 +22,7 @@ Parameters:
       two different availability zones. They should be residing in the selected
       Virtual Private Cloud.
   InstanceType:
-    Description: WebServer EC2 instance type
+    Description: Jeremy's WebServer
     Type: String
     Default: t2.small
     AllowedValues:
@@ -335,7 +335,7 @@ Resources:
       VPCZoneIdentifier: !Ref Subnets
       LaunchConfigurationName: !Ref LaunchConfig
       MinSize: '1'
-      MaxSize: '3'
+      MaxSize: '2'
       TargetGroupARNs:
         - !Ref ALBTargetGroup
       NotificationConfiguration:
@@ -481,6 +481,22 @@ Resources:
     Metadata:
       'AWS::CloudFormation::Designer':
         id: 6ab36de2-487e-4dea-8424-cc6a97b6d2dc
+  NetworkAlarmHigh:
+    Type: 'AWS::CloudWatch::Alarm'
+    Properties:
+      AlarmDescription: Scale-up if Network In > 3000 for 10 minutes
+      MetricName: NetworkIn
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: '300'
+      EvaluationPeriods: '2'
+      Threshold: '3000'
+      AlarmActions:
+        - !Ref WebServerScaleUpPolicy
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref WebServerGroup
+      ComparisonOperator: GreaterThanThreshold
   CPUAlarmHigh:
     Type: 'AWS::CloudWatch::Alarm'
     Properties:
